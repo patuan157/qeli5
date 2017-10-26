@@ -32,19 +32,19 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer10.Add( self.m_staticText2, 0, wx.ALL, 5 )
 		
-		self.m_treeCtrl4 = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 245,675 ), wx.TR_DEFAULT_STYLE )
-		bSizer10.Add( self.m_treeCtrl4, 0, wx.ALL, 5 )
+		self.saveBox = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 245,675 ), wx.TR_DEFAULT_STYLE )
+		bSizer10.Add( self.saveBox, 0, wx.ALL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_button12 = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
-		bSizer14.Add( self.m_button12, 0, wx.ALL, 5 )
+		self.saveBtn = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
+		bSizer14.Add( self.saveBtn, 0, wx.ALL, 5 )
 		
-		self.m_button13 = wx.Button( self, wx.ID_ANY, u"Load", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
-		bSizer14.Add( self.m_button13, 0, wx.ALL, 5 )
+		self.loadBtn = wx.Button( self, wx.ID_ANY, u"Load", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
+		bSizer14.Add( self.loadBtn, 0, wx.ALL, 5 )
 		
-		self.m_button14 = wx.Button( self, wx.ID_ANY, u"Remove", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
-		bSizer14.Add( self.m_button14, 0, wx.ALL, 5 )
+		self.removeBtn = wx.Button( self, wx.ID_ANY, u"Remove", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
+		bSizer14.Add( self.removeBtn, 0, wx.ALL, 5 )
 		
 		
 		bSizer10.Add( bSizer14, 1, wx.EXPAND, 5 )
@@ -64,11 +64,20 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer16.Add( self.m_staticText3, 0, wx.ALL, 5 )
 		
-		self.m_textCtrl12 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
-		bSizer16.Add( self.m_textCtrl12, 0, wx.ALL, 5 )
+		self.sqlBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
+		bSizer16.Add( self.sqlBox, 0, wx.ALL, 5 )
 		
-		self.m_button17 = wx.Button( self, wx.ID_ANY, u"Submit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer16.Add( self.m_button17, 0, wx.ALL, 5 )
+		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.submitBtn = wx.Button( self, wx.ID_ANY, u"Submit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer8.Add( self.submitBtn, 0, wx.ALL, 5 )
+		
+		self.progressBar = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( -1,25 ), wx.GA_HORIZONTAL )
+		self.progressBar.SetValue( 0 ) 
+		bSizer8.Add( self.progressBar, 0, wx.ALL, 5 )
+		
+		
+		bSizer16.Add( bSizer8, 1, wx.EXPAND, 5 )
 		
 		
 		bSizer15.Add( bSizer16, 1, wx.EXPAND, 5 )
@@ -81,10 +90,10 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer18.Add( self.m_staticText4, 0, wx.ALL, 5 )
 		
-		self.m_textCtrl13 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
-		self.m_textCtrl13.Enable( False )
+		self.natLangBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
+		self.natLangBox.Enable( False )
 		
-		bSizer18.Add( self.m_textCtrl13, 0, wx.ALL, 5 )
+		bSizer18.Add( self.natLangBox, 0, wx.ALL, 5 )
 		
 		
 		bSizer15.Add( bSizer18, 1, wx.EXPAND, 5 )
@@ -98,31 +107,31 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer12.Add( self.m_staticText5, 0, wx.ALL, 5 )
 		
-		self.m_grid4 = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 1010,440 ), 0 )
+		self.dataGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 1010,440 ), 0 )
 		
 		# Grid
-		self.m_grid4.CreateGrid( 5, 5 )
-		self.m_grid4.EnableEditing( True )
-		self.m_grid4.EnableGridLines( True )
-		self.m_grid4.EnableDragGridSize( False )
-		self.m_grid4.SetMargins( 0, 0 )
+		self.dataGrid.CreateGrid( 5, 5 )
+		self.dataGrid.EnableEditing( True )
+		self.dataGrid.EnableGridLines( True )
+		self.dataGrid.EnableDragGridSize( False )
+		self.dataGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.m_grid4.EnableDragColMove( False )
-		self.m_grid4.EnableDragColSize( True )
-		self.m_grid4.SetColLabelSize( 30 )
-		self.m_grid4.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		self.dataGrid.EnableDragColMove( False )
+		self.dataGrid.EnableDragColSize( True )
+		self.dataGrid.SetColLabelSize( 30 )
+		self.dataGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Rows
-		self.m_grid4.EnableDragRowSize( True )
-		self.m_grid4.SetRowLabelSize( 80 )
-		self.m_grid4.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		self.dataGrid.EnableDragRowSize( True )
+		self.dataGrid.SetRowLabelSize( 80 )
+		self.dataGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
 		
 		# Cell Defaults
-		self.m_grid4.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		bSizer12.Add( self.m_grid4, 0, wx.ALL, 5 )
+		self.dataGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		bSizer12.Add( self.dataGrid, 0, wx.ALL, 5 )
 		
 		
 		bSizer9.Add( bSizer12, 1, wx.EXPAND, 5 )
