@@ -1,7 +1,8 @@
 import wx
-from MainFrame import MainFrame
+import events
+from CustomFrame import CustomFrame
 
 if __name__ == '__main__':
     app = wx.App()
-    MainFrame(None).Show()
+    CustomFrame(None).Show()
     app.MainLoop()
