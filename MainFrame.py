@@ -20,7 +20,7 @@ class MainFrame (wx.Frame):
 
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"PostgreSQL Query Plan Vocalizer",
-                          pos=wx.DefaultPosition, size=wx.Size(1282, 789), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+                          pos=wx.DefaultPosition, size=wx.Size(1199, 739), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHintsSz(wx.DefaultSize, wx.DefaultSize)
 
@@ -37,7 +37,7 @@ class MainFrame (wx.Frame):
         bSizer10.Add(self.m_staticText2, 0, wx.ALL, 5)
 
         self.saveBox = wx.TreeCtrl(
-            self, wx.ID_ANY, wx.DefaultPosition, wx.Size(245, 675), wx.TR_DEFAULT_STYLE)
+            self, wx.ID_ANY, wx.DefaultPosition, wx.Size(245, 620), wx.TR_DEFAULT_STYLE)
         bSizer10.Add(self.saveBox, 0, wx.ALL, 5)
 
         bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
