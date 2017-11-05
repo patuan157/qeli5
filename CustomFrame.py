@@ -9,3 +9,4 @@ class CustomFrame(MainFrame):
         self.loadBtn.Bind(wx.EVT_BUTTON, events.onLoadBtnClick)
         self.removeBtn.Bind(wx.EVT_BUTTON, events.onRemoveBtnClick)
         self.submitBtn.Bind(wx.EVT_BUTTON, events.onSubmitBtnClick)
+        self.vocalBtn.Bind(wx.EVT_BUTTON, events.onVocalBtnClick)

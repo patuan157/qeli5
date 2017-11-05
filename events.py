@@ -1,11 +1,14 @@
 def onSaveBtnClick(event):
-    print('yes')
+    print('Save btn clicked.')
 
 def onLoadBtnClick(event):
-    print('yes')
+    print('Load btn clicked.')
 
 def onRemoveBtnClick(event):
-    print('yes')
+    print('Remove btn clicked.')
     
 def onSubmitBtnClick(event):
-    print('yes')
+    print('Submit btn clicked.')
+
+def onVocalBtnClick(event):
+    print('Vocal btn clicked.')
