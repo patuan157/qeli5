@@ -1,5 +1,4 @@
 import wx
-import events
 from CustomFrame import CustomFrame
 
 if __name__ == '__main__':
