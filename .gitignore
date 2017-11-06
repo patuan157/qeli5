@@ -5,3 +5,5 @@ __pycache__/
 requirements.txt
 
 env/
+
+.env
