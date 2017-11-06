@@ -23,6 +23,7 @@ class CustomFrame(MainFrame):
         self.removeBtn.Bind(wx.EVT_BUTTON, self.onRemove)
         self.submitBtn.Bind(wx.EVT_BUTTON, self.onSubmit)
         self.vocalBtn.Bind(wx.EVT_BUTTON, self.onVocalize)
+        self.saveBox.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.onLoad)
 
     def start_db_connection(self):
         """Create new connection instance to PostgreSQL local database."""
@@ -32,7 +33,6 @@ class CustomFrame(MainFrame):
             dbHost = os.environ.get('DB_HOST')
             dbPwd = os.environ.get('DB_PWD')
             dbConnectionString = "dbname={} user={} host={} password={}".format(dbName, dbUser, dbHost, dbPwd)
-            print(dbConnectionString)
             self.connection = database.connect(dbConnectionString)
         except Exception as err:
             print(err)

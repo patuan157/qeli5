@@ -65,19 +65,12 @@ class MainFrame ( wx.Frame ):
 		bSizer16.Add( self.m_staticText3, 0, wx.ALL, 5 )
 		
 		self.sqlBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
+		self.sqlBox.SetFont( wx.Font( 9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Courier New" ) )
+		
 		bSizer16.Add( self.sqlBox, 0, wx.ALL, 5 )
 		
-		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
-		
 		self.submitBtn = wx.Button( self, wx.ID_ANY, u"Submit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer8.Add( self.submitBtn, 0, wx.ALL, 5 )
-		
-		self.progressBar = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( -1,25 ), wx.GA_HORIZONTAL )
-		self.progressBar.SetValue( 0 ) 
-		bSizer8.Add( self.progressBar, 0, wx.ALL, 5 )
-		
-		
-		bSizer16.Add( bSizer8, 1, wx.EXPAND, 5 )
+		bSizer16.Add( self.submitBtn, 0, wx.ALL, 5 )
 		
 		
 		bSizer15.Add( bSizer16, 1, wx.EXPAND, 5 )
@@ -90,8 +83,8 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer18.Add( self.m_staticText4, 0, wx.ALL, 5 )
 		
-		self.natLangBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
-		self.natLangBox.Enable( False )
+		self.natLangBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_RICH|wx.TE_RICH2|wx.TE_WORDWRAP )
+		self.natLangBox.SetFont( wx.Font( 9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Courier New" ) )
 		
 		bSizer18.Add( self.natLangBox, 0, wx.ALL, 5 )
 		
