@@ -1,10 +1,17 @@
 # qELI5 - PostgreSQL Query Plan Vocalizer
-## Major Dependencies
+## npm Dependencies
+```
+nodemon
+yarn (global, optional)
+```
+Run `yarn` or `npm install` to install packages.
+## Python Dependencies
 ```
 wxPython
 psycopg2
 dotenv
 ```
+Make use of `pip` or `virtualenv` to install packages. 
 ## Setting up .env
 Rename `.env.example` to `.env` and modify accordingly.
 ```
@@ -15,14 +22,10 @@ DB_PWD=<db_password>
 ```
 ## Run
 ### With nodemon
-```
-npm run dev
-```
-Frame is auto-restarted (with changes) after being closed.
+Run `yarn dev` or `npm run dev`.
 
-Use `Ctrl+C` to from within the running console stop.
+In this mode the main frame is auto-recreated (with changes) after being closed. Use `Ctrl+C` from within the running console to stop.
 ### Without nodemon
-```
-npm start
-```
-Start script simply acts as a wrapper for `python main.py`.
+Run `yarn start` or `npm start`.
+
+In this mode the start script, which simply acts as a wrapper for `python main.py`, is called.
