@@ -49,6 +49,41 @@ class CustomFrame(MainFrame):
             self.saveBox.AppendItem(
                 parent=self.rootNode, text=key, data=self.query[key])
         self.saveBox.ExpandAll()
+    
+    def populateGrid(self, data, colNames = []):
+        # data dimensions
+        rowLim = 5
+        rowDim = min(len(data), rowLim)
+        colDim = len(data[0])
+
+        # fix grid dimensions
+        curRowDim = self.dataGrid.GetNumberRows()
+        curColDim = self.dataGrid.GetNumberCols()
+        diffRowDim = rowDim - curRowDim
+        diffColDim = colDim - curColDim
+        if diffRowDim > 0:
+            self.dataGrid.AppendRows(diffRowDim)
+        else:
+            self.dataGrid.DeleteRows(abs(diffRowDim))
+        if diffColDim > 0:
+            self.dataGrid.AppendCols(diffColDim)
+        else:
+            self.dataGrid.DeleteCols(abs(diffColDim))
+
+        # populate column labels
+        for i in range(len(colNames)):
+            self.dataGrid.SetColLabelValue(i, colNames[i])
+
+        # populate grid with data
+        for i in range(rowDim):
+            for j in range(colDim):
+                self.dataGrid.SetCellValue(i, j, str(data[i][j]))
+                self.dataGrid.SetReadOnly(i, j)
+
+        # indicate if not all dataset is shown
+        if rowLim < len(data):
+            self.dataGrid.AppendRows()
+            self.dataGrid.SetCellValue(rowLim, 0, "(Load more...)")
 
     def onSubmit(self, event):
         """onSubmit function when click button. Submit query to Database and get back the QUERY PLAN."""
@@ -57,7 +92,6 @@ class CustomFrame(MainFrame):
         cur = self.connection.cursor()				# Open new cursor
         cur.execute("EXPLAIN ANALYZE " + query)		# EXPLAIN or EXPLAIN ANALYZE
         rows = cur.fetchall()						# rows contain result
-        # print(rows)
         cur.close()									# Close cursor
         text_send_to_vocalizer = ""
         for row in rows:
@@ -65,6 +99,13 @@ class CustomFrame(MainFrame):
 
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
+
+        cur = self.connection.cursor()
+        cur.execute(query)
+        results = cur.fetchall()
+        colNames = [desc[0] for desc in cur.description]
+        cur.close()
+        self.populateGrid(results, colNames)
 
     def onSave(self, event):
         """onSave function when click button. Save new query with a prompt name to the Tree."""

@@ -106,7 +106,7 @@ class MainFrame ( wx.Frame ):
 		self.dataGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 1010,440 ), 0 )
 		
 		# Grid
-		self.dataGrid.CreateGrid( 5, 5 )
+		self.dataGrid.CreateGrid( 0, 0 )
 		self.dataGrid.EnableEditing( True )
 		self.dataGrid.EnableGridLines( True )
 		self.dataGrid.EnableDragGridSize( False )
