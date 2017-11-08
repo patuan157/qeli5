@@ -7,3 +7,5 @@ requirements.txt
 env/
 
 .env
+
+node_modules/
