@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "```\r wxPython\r psycopg2\r dotenv\r ```\r ## Setting up .env\r ```\r DB_NAME=<db_name>\r DB_HOST=<db_host>\r DB_USER=<db_user>\r DB_PWD=<db_password>\r ```\r ## Run\r ```\r python main.py\r ```",
   "scripts": {
-    "dev" : "nodemon",
-    "start": "python main.py"
+    "dev": "nodemon",
+    "start": "run-script-os",
+    "start:win32": "python main.py",
+    "start:darwin": "python3 main.py"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "homepage": "https://github.com/itsnhduc/qeli5#readme",
   "devDependencies": {
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "run-script-os": "^1.0.2"
   }
 }
