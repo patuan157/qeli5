@@ -17,7 +17,7 @@ class CustomFrame(MainFrame):
         self.rootNode = None
         self.create_tree_view()
 
-    # Binding Event to Button
+        # Binding Event to Button
         self.saveBtn.Bind(wx.EVT_BUTTON, self.onSave)
         self.loadBtn.Bind(wx.EVT_BUTTON, self.onLoad)
         self.removeBtn.Bind(wx.EVT_BUTTON, self.onRemove)
@@ -90,7 +90,7 @@ class CustomFrame(MainFrame):
         query = self.sqlBox.GetValue()				# Get The Query String submitted
 
         cur = self.connection.cursor()				# Open new cursor
-        cur.execute("EXPLAIN ANALYZE " + query)		# EXPLAIN or EXPLAIN ANALYZE
+        cur.execute("EXPLAIN " + query)		        # EXPLAIN or EXPLAIN ANALYZE
         rows = cur.fetchall()						# rows contain result
         cur.close()									# Close cursor
         text_send_to_vocalizer = ""
