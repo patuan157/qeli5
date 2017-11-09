@@ -8,6 +8,8 @@ import settings
 
 
 class CustomFrame(MainFrame):
+    DATA_LOAD_LIMIT = 5
+
     def __init__(self, parent):
         MainFrame.__init__(self, parent)
         self.connection = None
@@ -16,6 +18,7 @@ class CustomFrame(MainFrame):
         self.load_saved_query()
         self.rootNode = None
         self.create_tree_view()
+        self.dataCursor = None
 
         # Binding Event to Button
         self.saveBtn.Bind(wx.EVT_BUTTON, self.onSave)
@@ -23,6 +26,7 @@ class CustomFrame(MainFrame):
         self.removeBtn.Bind(wx.EVT_BUTTON, self.onRemove)
         self.submitBtn.Bind(wx.EVT_BUTTON, self.onSubmit)
         self.vocalBtn.Bind(wx.EVT_BUTTON, self.onVocalize)
+        self.loadMoreDataBtn.Bind(wx.EVT_BUTTON, self.onLoadMoreData)
         self.saveBox.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.onLoad)
 
     def start_db_connection(self):
@@ -50,40 +54,39 @@ class CustomFrame(MainFrame):
                 parent=self.rootNode, text=key, data=self.query[key])
         self.saveBox.ExpandAll()
     
-    def populateGrid(self, data, colNames = []):
+    def populateGrid(self, isAppendMode = False):
+        # fetch data
+        data = self.dataCursor.fetchmany(self.DATA_LOAD_LIMIT)
+        if len(data) == 0:
+            self.loadMoreDataBtn.Enable(False)
+            return
+        else:
+            self.loadMoreDataBtn.Enable()
+        colNames = [desc[0] for desc in self.dataCursor.description]
+
         # data dimensions
-        rowLim = 5
-        rowDim = min(len(data), rowLim)
+        rowDim = min(len(data), self.DATA_LOAD_LIMIT)
         colDim = len(data[0])
 
         # fix grid dimensions
-        curRowDim = self.dataGrid.GetNumberRows()
-        curColDim = self.dataGrid.GetNumberCols()
-        diffRowDim = rowDim - curRowDim
-        diffColDim = colDim - curColDim
-        if diffRowDim > 0:
-            self.dataGrid.AppendRows(diffRowDim)
-        else:
-            self.dataGrid.DeleteRows(abs(diffRowDim))
-        if diffColDim > 0:
-            self.dataGrid.AppendCols(diffColDim)
-        else:
-            self.dataGrid.DeleteCols(abs(diffColDim))
+        if not isAppendMode:
+            if self.dataGrid.GetNumberRows() != 0:
+                self.dataGrid.DeleteRows(numRows = self.dataGrid.GetNumberRows())
+                self.dataGrid.DeleteCols(numCols = self.dataGrid.GetNumberCols())
+            self.dataGrid.AppendCols(colDim)
+        self.dataGrid.AppendRows(rowDim)
 
         # populate column labels
-        for i in range(len(colNames)):
-            self.dataGrid.SetColLabelValue(i, colNames[i])
+        if not isAppendMode:
+            for i in range(len(colNames)):
+                self.dataGrid.SetColLabelValue(i, colNames[i])
 
         # populate grid with data
+        offset = rowDim if isAppendMode else 0
         for i in range(rowDim):
             for j in range(colDim):
-                self.dataGrid.SetCellValue(i, j, str(data[i][j]))
-                self.dataGrid.SetReadOnly(i, j)
-
-        # indicate if not all dataset is shown
-        if rowLim < len(data):
-            self.dataGrid.AppendRows()
-            self.dataGrid.SetCellValue(rowLim, 0, "(Load more...)")
+                self.dataGrid.SetCellValue(i + offset, j, str(data[i][j]))
+                self.dataGrid.SetReadOnly(i + offset, j)
 
     def onSubmit(self, event):
         """onSubmit function when click button. Submit query to Database and get back the QUERY PLAN."""
@@ -96,16 +99,14 @@ class CustomFrame(MainFrame):
         text_send_to_vocalizer = ""
         for row in rows:
             text_send_to_vocalizer += (row[0] + "\n")
-
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
 
-        cur = self.connection.cursor()
-        cur.execute(query)
-        results = cur.fetchall()
-        colNames = [desc[0] for desc in cur.description]
-        cur.close()
-        self.populateGrid(results, colNames)
+        if self.dataCursor is not None and not self.dataCursor.closed:
+            self.dataCursor.close()
+        self.dataCursor = self.connection.cursor()
+        self.dataCursor.execute(query)
+        self.populateGrid()
 
     def onSave(self, event):
         """onSave function when click button. Save new query with a prompt name to the Tree."""
@@ -149,7 +150,12 @@ class CustomFrame(MainFrame):
         print("Vocalize the Query")
         pass
 
+    def onLoadMoreData(self, event):
+        self.populateGrid(isAppendMode = True)
+
     def __del__(self):
+        if not self.dataCursor.closed:
+            self.dataCursor.close()
         self.connection.close()			# Close connection when complete the program
         with open('query.json', 'w') as query_file:
             json.dump(self.query, query_file)
