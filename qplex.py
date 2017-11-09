@@ -138,6 +138,7 @@ lexer = lex.lex()
 #        print(tok)
 
 precedence = (
+    ('nonassoc', 'SUBOPS'),
     ('left', 'OR'),
     ('left', 'AND'),
 )
@@ -146,13 +147,14 @@ def p_statement(p):
     '''
     statement : scan_stmt
                 | join_stmt
+                | sort_stmt
 
                 | filter
                 | index_cond
                 | recheck
                 | summary
                 | predicate
-                | value
+                | field
                 | empty
     '''
     p[0] = p[1]
@@ -196,7 +198,10 @@ def p_index_only_scan_stmt(p):
     print('Index Only Scan Statement')
 
 def p_bmp_scan_stmt(p):
-    'bmp_scan_stmt : bmp_heap_scan_stmt SUBOPS bmp_scan_stmt_tail'
+    '''
+    bmp_scan_stmt : bmp_heap_scan_stmt 
+                | bmp_heap_scan_stmt SUBOPS bmp_scan_stmt_tail
+    '''
     print('Bitmap Scan Statement')
 
 def p_bmp_scan_stmt_tail(p):
@@ -231,7 +236,7 @@ def p_hash_join_stmt_tail(p):
     'hash_join_stmt_tail : SUBOPS scan_stmt SUBOPS hash_stmt'
 
 def p_hash_stmt(p):
-    'hash_stmt : hash scan_stmt'
+    'hash_stmt : hash SUBOPS scan_stmt'
     print('Hash Statement')
 
 def p_merge_join_stmt(p):
@@ -246,37 +251,37 @@ def p_sort_stmt(p):
     print('Sort Statement')
 
 def p_seq_scan(p):
-    'seq_scan : SEQUENTIAL SCAN ON ID summary'
+    'seq_scan : SEQUENTIAL SCAN ON table summary'
     p[0] = p[1]
-    for i in range(2, 6):
+    for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
 def p_index_scan(p):
-    'index_scan : INDEX SCAN USING ID ON ID summary'
+    'index_scan : INDEX SCAN USING index ON table summary'
     p[0] = p[1]
-    for i in range(2, 8):
+    for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
 def p_index_only_scan(p):
-    'index_only_scan : INDEX ONLY SCAN USING ID ON ID summary'
+    'index_only_scan : INDEX ONLY SCAN USING index ON table summary'
     p[0] = p[1]
-    for i in range(2, 9):
+    for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
 def p_bmp_heap_scan(p):
-    'bmp_heap_scan : BITMAP HEAP SCAN ON ID summary'
+    'bmp_heap_scan : BITMAP HEAP SCAN ON table summary'
     p[0] = p[1]
-    for i in range(2, 7):
+    for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
 def p_bmp_index_scan(p):
-    'bmp_index_scan : BITMAP INDEX SCAN ON ID summary'
+    'bmp_index_scan : BITMAP INDEX SCAN ON table summary'
     p[0] = p[1]
-    for i in range(2, 7):
+    for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
@@ -309,7 +314,7 @@ def p_summary(p):
 
 def p_predicate(p):
     '''
-    predicate : ID ops value
+    predicate : field ops field
                 | LPAREN predicate RPAREN
                 | predicate AND predicate
                 | predicate OR predicate
@@ -330,17 +335,30 @@ def p_ops(p):
     '''
     p[0] = p[1]
 
-def p_value(p):
+def p_field(p):
     '''
-    value : INT
+    field : INT
             | COST_VAL
-            | object
+            | value
+            | attribute
     '''
     p[0] = p[1]
 
-def p_object(p):
-    'object : LITERALS TYPE ID'
+def p_value(p):
+    '''
+    value : LITERALS TYPE ID
+    '''
     p[0] = '(' + str(p[3]) + ') ' + str(p[1])
+
+def p_attribute(p):
+    '''
+    attribute : table IN ID
+            | ID
+    '''
+    if (len(p) == 4):
+        p[0] = str(p[1]) + '->' + str(p[3])
+    else:
+        p[0] = p[1]
 
 def p_nested_loop(p):
     'nested_loop : NESTED LOOP summary'
@@ -364,10 +382,25 @@ def p_sort(p):
     'sort : SORT summary'
 
 def p_sort_key(p):
-    'sort_key : SORT KEY COLON ID IN ID'
+    'sort_key : SORT KEY COLON attribute'
 
 def p_hash_cond(p):
     'hash_cond : HASH CONDITION COLON predicate'
+
+def p_table(p):
+    '''
+    table : ID
+        | ID alias
+    '''
+    p[0] = p[1]
+
+def p_alias(p):
+    'alias : ID'
+    p[0] = p[1]
+
+def p_index(p):
+    'index : USING ID'
+    p[0] = p[2]
 
 def p_empty(p):
     'empty :'
