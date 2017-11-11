@@ -143,6 +143,8 @@ precedence = (
     ('left', 'AND'),
 )
 
+output = []
+
 def p_statement(p):
     '''
     statement : scan_stmt
@@ -158,6 +160,7 @@ def p_statement(p):
                 | empty
     '''
     p[0] = p[1]
+    output.append(p[0])
 
 def p_scan_stmt(p):
     '''
@@ -181,74 +184,92 @@ def p_seq_scan_stmt(p):
     seq_scan_stmt : seq_scan
                 | seq_scan filter
     '''
-    print('Sequential Scan Statement')
+    p[0] = 'Sequential Scan Statement'
+    print(p[0])
 
 def p_index_scan_stmt(p):
     '''
     index_scan_stmt : index_scan
                 | index_scan index_cond
     '''
-    print('Index Scan Statement')
+    p[0] = 'Index Scan Statement'
+    print(p[0])
 
 def p_index_only_scan_stmt(p):
     '''
     index_only_scan_stmt : index_only_scan
                     | index_only_scan index_cond
     '''
-    print('Index Only Scan Statement')
+    p[0] = 'Index Only Scan Statement'
+    print(p[0])
 
 def p_bmp_scan_stmt(p):
     '''
     bmp_scan_stmt : bmp_heap_scan_stmt 
                 | bmp_heap_scan_stmt SUBOPS bmp_scan_stmt_tail
     '''
-    print('Bitmap Scan Statement')
+    p[0] = 'Bitmap Scan Statement'
+    print(p[0])
 
 def p_bmp_scan_stmt_tail(p):
     'bmp_scan_stmt_tail : bmp_index_scan_stmt'
+    p[0] = p[1]
 
 def p_bmp_heap_scan_stmt(p):
     'bmp_heap_scan_stmt : bmp_heap_scan recheck'
+    p[0] = 'Bitmap Heap Scan Statement'
+    print(p[0])
 
 def p_bmp_index_scan_stmt(p):
     '''
     bmp_index_scan_stmt : bmp_index_scan 
                     | bmp_index_scan index_cond
     '''
+    p[0] = 'Bitmap Index Scan Statement'
+    print(p[0])
 
 def p_nested_join_stmt(p):
     '''
     nested_join_stmt : nested_loop SUBOPS scan_stmt SUBOPS nested_join_stmt_tail
     '''
-    print('Nested Loop Join')
+    p[0] = 'Nested Loop Join'
+    print(p[0])
 
 def p_nested_join_stmt_tail(p):
     '''
     nested_join_stmt_tail : scan_stmt
                     | materialize SUBOPS scan_stmt
     '''
+    if (len(p) == 1):
+        p[0] = p[1]
+    else:
+        p[0] = p[1] + '<-' + p[3]
 
 def p_hash_join_stmt(p):
     'hash_join_stmt : hash_join hash_cond hash_join_stmt_tail'
-    print('Hash Join Statement')
+    p[0] = 'Hash Join Statement'
+    print(p[0])
 
 def p_hash_join_stmt_tail(p):
     'hash_join_stmt_tail : SUBOPS scan_stmt SUBOPS hash_stmt'
 
 def p_hash_stmt(p):
     'hash_stmt : hash SUBOPS scan_stmt'
-    print('Hash Statement')
+    p[0] = 'Hash Statement'
+    print(p[0])
 
 def p_merge_join_stmt(p):
     'merge_join_stmt : merge_join merge_cond merge_join_stmt_tail'
-    print('Merge Join Statement')
+    p[0] = 'Merge Join Statement'
+    print(p[0])
 
 def p_merge_join_stmt_tail(p):
     'merge_join_stmt_tail : SUBOPS sort_stmt SUBOPS sort_stmt'
 
 def p_sort_stmt(p):
     'sort_stmt : sort sort_key SUBOPS statement'
-    print('Sort Statement')
+    p[0] = 'Sort Statement'
+    print(p[0])
 
 def p_seq_scan(p):
     'seq_scan : SEQUENTIAL SCAN ON table summary'
@@ -258,14 +279,14 @@ def p_seq_scan(p):
     print(p[0])
 
 def p_index_scan(p):
-    'index_scan : INDEX SCAN USING index ON table summary'
+    'index_scan : INDEX SCAN index ON table summary'
     p[0] = p[1]
     for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
     print(p[0])
 
 def p_index_only_scan(p):
-    'index_only_scan : INDEX ONLY SCAN USING index ON table summary'
+    'index_only_scan : INDEX ONLY SCAN index ON table summary'
     p[0] = p[1]
     for i in range(2, len(p)):
         p[0] += ',' + str(p[i])
@@ -412,9 +433,14 @@ def p_error(p):
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-while 1:
-    try:
-        s = input('qplex > ')
-    except EOFError:
-        break
+def parse(s):
+    output.clear()
     parser.parse(s)
+    return output
+
+#while 1:
+#    try:
+#        s = input('qplex > ')
+#    except EOFError:
+#        break
+#    parser.parse(s)

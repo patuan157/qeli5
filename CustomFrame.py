@@ -4,6 +4,7 @@ import json
 import psycopg2 as database
 
 from MainFrame import MainFrame
+from qplex import parse
 import settings
 
 
@@ -31,8 +32,7 @@ class CustomFrame(MainFrame):
             dbName = os.environ.get('DB_NAME')
             dbUser = os.environ.get('DB_USER')
             dbHost = os.environ.get('DB_HOST')
-            dbPwd = os.environ.get('DB_PWD')
-            dbConnectionString = "dbname={} user={} host={} password={}".format(dbName, dbUser, dbHost, dbPwd)
+            dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost)
             self.connection = database.connect(dbConnectionString)
         except Exception as err:
             print(err)
@@ -90,18 +90,17 @@ class CustomFrame(MainFrame):
         query = self.sqlBox.GetValue()				# Get The Query String submitted
 
         cur = self.connection.cursor()				# Open new cursor
-        cur.execute("EXPLAIN ANALYZE " + query)		# EXPLAIN or EXPLAIN ANALYZE
+        cur.execute("EXPLAIN " + query)		# EXPLAIN or EXPLAIN ANALYZE
         rows = cur.fetchall()						# rows contain result
         cur.close()									# Close cursor
-        text_send_to_vocalizer = ""
-        for row in rows:
-            text_send_to_vocalizer += (row[0] + "\n")
+        query_plan = ' '.join(list(map(lambda x: x[0], rows)))
+        text_send_to_vocalizer = ' '.join(parse(query_plan))
 
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
 
         cur = self.connection.cursor()
-        cur.execute(query)
+        cur.execute(query + ' LIMIT 10')
         results = cur.fetchall()
         colNames = [desc[0] for desc in cur.description]
         cur.close()
