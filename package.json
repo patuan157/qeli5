@@ -1,0 +1,22 @@
+{
+  "name": "qeli5",
+  "version": "1.0.0",
+  "description": "```\r wxPython\r psycopg2\r dotenv\r ```\r ## Setting up .env\r ```\r DB_NAME=<db_name>\r DB_HOST=<db_host>\r DB_USER=<db_user>\r DB_PWD=<db_password>\r ```\r ## Run\r ```\r python main.py\r ```",
+  "scripts": {
+    "dev" : "nodemon",
+    "start": "python main.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsnhduc/qeli5.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itsnhduc/qeli5/issues"
+  },
+  "homepage": "https://github.com/itsnhduc/qeli5#readme",
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
+}

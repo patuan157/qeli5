@@ -1,7 +1,10 @@
-__pycache__
-.vscode
-cloud_sql_proxy
 .python-version
 **.pyc
 parser.out
 parsetab.py
+__pycache__/
+.vscode/
+requirements.txt
+env/
+.env
+node_modules/

@@ -1,0 +1,6 @@
+{
+    "Query 1": "SELECT * FROM ARTICLE LIMIT 10;",
+    "Query 2": "SELECT count(*) FROM publication GROUP BY decade;",
+    "Query 3": "Hello Word;",
+    "Query 4": "select pub_type, count(id) as count\rfrom publication\rwhere year between 2000 and 2017\rgroup by pub_type;\r"
+}
