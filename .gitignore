@@ -1,13 +1,11 @@
+.python-version
+**.pyc
+parser.out
+parsetab.py
 __pycache__/
-
 .vscode/
-
 requirements.txt
-
 env/
-
 .env
-
 node_modules/
-
 package-lock.json
