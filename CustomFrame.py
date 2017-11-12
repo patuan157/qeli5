@@ -93,8 +93,8 @@ class CustomFrame(MainFrame):
         cur.execute("EXPLAIN " + query)		# EXPLAIN or EXPLAIN ANALYZE
         rows = cur.fetchall()						# rows contain result
         cur.close()									# Close cursor
-        query_plan = ' '.join(list(map(lambda x: x[0], rows)))
-        text_send_to_vocalizer = ' '.join(parse(query_plan))
+        query_plan = ' '.join(list(map(lambda x: x[0], rows)))  # convert list of tuples to list of string
+        text_send_to_vocalizer = parse(query_plan)  # convert query plan to human-readable text
 
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
