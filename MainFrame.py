@@ -18,7 +18,7 @@ import wx.grid
 class MainFrame ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"PostgreSQL Query Plan Vocalizer", pos = wx.DefaultPosition, size = wx.Size( 1199,784 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"PostgreSQL Query Plan Vocalizer", pos = wx.DefaultPosition, size = wx.Size( 1199,723 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		
@@ -32,7 +32,7 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer10.Add( self.m_staticText2, 0, wx.ALL, 5 )
 		
-		self.saveBox = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 245,660 ), wx.TR_DEFAULT_STYLE )
+		self.saveBox = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 245,600 ), wx.TR_DEFAULT_STYLE )
 		bSizer10.Add( self.saveBox, 0, wx.ALL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
@@ -103,7 +103,7 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer12.Add( self.m_staticText5, 0, wx.ALL, 5 )
 		
-		self.dataGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 1010,440 ), 0 )
+		self.dataGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 1010,330 ), 0 )
 		
 		# Grid
 		self.dataGrid.CreateGrid( 0, 0 )
@@ -128,6 +128,9 @@ class MainFrame ( wx.Frame ):
 		# Cell Defaults
 		self.dataGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		bSizer12.Add( self.dataGrid, 0, wx.ALL, 5 )
+		
+		self.loadMoreDataBtn = wx.Button( self, wx.ID_ANY, u"Load More", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer12.Add( self.loadMoreDataBtn, 0, wx.ALL, 5 )
 		
 		
 		bSizer9.Add( bSizer12, 1, wx.EXPAND, 5 )
