@@ -36,7 +36,9 @@ class CustomFrame(MainFrame):
             dbName = os.environ.get('DB_NAME')
             dbUser = os.environ.get('DB_USER')
             dbHost = os.environ.get('DB_HOST')
-            dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost)
+            dbPwd = os.environ.get('DB_PWD')
+            dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost) + \
+                " password={}".format(dbPwd) if dbPwd is not None else ""
             self.connection = database.connect(dbConnectionString)
         except Exception as err:
             print(err)
@@ -101,13 +103,19 @@ class CustomFrame(MainFrame):
 
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
+        		  
+        if self.dataCursor is not None and not self.dataCursor.closed:
+            self.dataCursor.close()
+        self.dataCursor = self.connection.cursor()
+        self.dataCursor.execute(query)
+        self.populateGrid()
 
-        cur = self.connection.cursor()
-        cur.execute(query + ' LIMIT 10')
-        results = cur.fetchall()
-        colNames = [desc[0] for desc in cur.description]
-        cur.close()
-        self.populateGrid(results, colNames)
+        # cur = self.connection.cursor()
+        # cur.execute(query + ' LIMIT 10')
+        # results = cur.fetchall()
+        # colNames = [desc[0] for desc in cur.description]
+        # cur.close()
+        # self.populateGrid(results, colNames)
 
     def onSave(self, event):
         """onSave function when click button. Save new query with a prompt name to the Tree."""
