@@ -1,11 +1,13 @@
 import wx
 import os
+import platform
 import json
 import psycopg2 as database
+import settings
 
 from MainFrame import MainFrame
 from qplex import parse
-import settings
+from gtts import gTTS
 
 
 class CustomFrame(MainFrame):
@@ -149,7 +151,20 @@ class CustomFrame(MainFrame):
     def onVocalize(self, event):
         """onVocalize function when click button. Vocalize the QUERY PLAN, show descriptive text and speak output."""
         print("Vocalize the Query")
-        pass
+        self.speak()
+
+    def speak(self, input=None):
+        """Vocalize the output after parsing"""
+        # Check system platform. For Window, we run with built in module wx.adv
+        if platform.system() == "Windows":
+            try:
+                tts = gTTS(text=self.natLangBox.GetValue(), lang='en')
+                tts.save("output.mp3")
+                wx.adv.Sound("output.mp3").Play()
+            except:
+                print("Some error with module wx.adv.Sound")
+        else:
+            os.system("say '" + self.natLangBox.GetValue() + "' -r 170")
 
     def onLoadMoreData(self, event):
         self.populateGrid(isAppendMode = True)
