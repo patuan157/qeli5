@@ -1,11 +1,13 @@
 import wx
 import os
+import platform
 import json
 import psycopg2 as database
+import settings
 
 from MainFrame import MainFrame
 from qplex import parse
-import settings
+from gtts import gTTS
 
 
 class CustomFrame(MainFrame):
@@ -104,11 +106,12 @@ class CustomFrame(MainFrame):
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
         		  
-        if self.dataCursor is not None and not self.dataCursor.closed:
-            self.dataCursor.close()
+        #if self.dataCursor is not None and not self.dataCursor.closed:
+        #    self.dataCursor.close()
         self.dataCursor = self.connection.cursor()
         self.dataCursor.execute(query)
         self.populateGrid()
+        self.dataCursor.close()
 
         # cur = self.connection.cursor()
         # cur.execute(query + ' LIMIT 10')
@@ -157,14 +160,25 @@ class CustomFrame(MainFrame):
     def onVocalize(self, event):
         """onVocalize function when click button. Vocalize the QUERY PLAN, show descriptive text and speak output."""
         print("Vocalize the Query")
-        pass
+        self.speak()
+
+    def speak(self, input=None):
+        """Vocalize the output after parsing"""
+        # Check system platform. For Window, we run with built in module wx.adv
+        if platform.system() == "Windows":
+            try:
+                tts = gTTS(text=self.natLangBox.GetValue(), lang='en')
+                tts.save("output.mp3")
+                wx.adv.Sound("output.mp3").Play()
+            except:
+                print("Some error with module wx.adv.Sound")
+        else:
+            os.system("say '" + self.natLangBox.GetValue() + "' -r 170")
 
     def onLoadMoreData(self, event):
         self.populateGrid(isAppendMode = True)
 
     def __del__(self):
-        if not self.dataCursor.closed:
-            self.dataCursor.close()
         self.connection.close()			# Close connection when complete the program
         with open('query.json', 'w') as query_file:
             json.dump(self.query, query_file)
