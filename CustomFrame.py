@@ -38,7 +38,7 @@ class CustomFrame(MainFrame):
             dbHost = os.environ.get('DB_HOST')
             dbPwd = os.environ.get('DB_PWD')
             dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost) + \
-                " password={}".format(dbPwd) if dbPwd is not None else ""
+                (" password={}".format(dbPwd) if dbPwd is not None else "")
             self.connection = database.connect(dbConnectionString)
         except Exception as err:
             print(err)
