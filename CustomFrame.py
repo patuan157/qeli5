@@ -38,9 +38,10 @@ class CustomFrame(MainFrame):
             dbName = os.environ.get('DB_NAME')
             dbUser = os.environ.get('DB_USER')
             dbHost = os.environ.get('DB_HOST')
-            dbPwd = os.environ.get('DB_PWD')
-            dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost) + \
-                " password={}".format(dbPwd) if dbPwd is not None else ""
+            #dbPwd = os.environ.get('DB_PWD')
+            #dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost) + \
+            #    " password={}".format(dbPwd) if dbPwd is not None else ""
+            dbConnectionString = "dbname={} user={} host={}".format(dbName, dbUser, dbHost)
             self.connection = database.connect(dbConnectionString)
         except Exception as err:
             print(err)
@@ -106,11 +107,12 @@ class CustomFrame(MainFrame):
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
         self.natLangBox.SetValue(text_send_to_vocalizer)
         		  
-        if self.dataCursor is not None and not self.dataCursor.closed:
-            self.dataCursor.close()
+        #if self.dataCursor is not None and not self.dataCursor.closed:
+        #    self.dataCursor.close()
         self.dataCursor = self.connection.cursor()
         self.dataCursor.execute(query)
         self.populateGrid()
+        self.dataCursor.close()
 
         # cur = self.connection.cursor()
         # cur.execute(query + ' LIMIT 10')
@@ -178,8 +180,6 @@ class CustomFrame(MainFrame):
         self.populateGrid(isAppendMode = True)
 
     def __del__(self):
-        if not self.dataCursor.closed:
-            self.dataCursor.close()
         self.connection.close()			# Close connection when complete the program
         with open('query.json', 'w') as query_file:
             json.dump(self.query, query_file)
