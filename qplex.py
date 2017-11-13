@@ -61,6 +61,7 @@ tokens = [
         'IN',
 
         # OPERATORS
+        'MATCH',
         'NE',
         'GE',
         'LE',
@@ -82,6 +83,7 @@ t_TYPE      = r'\:\:'
 t_COLON     = r'\:'
 t_TO        = r'\.\.'
 t_IN        = r'\.'
+t_MATCH     = r'~~'
 t_NE        = r'<>'
 t_LE        = r'<='
 t_GE        = r'>='
@@ -148,7 +150,7 @@ output = []
 def p_output(p):
     'output : statement'
     output.append(p[1]['text'])
-    print('Parser outpu:\n')
+    print('Parser output:\n')
     print(p[1]['text'])
 
 def p_statement(p):
@@ -158,10 +160,51 @@ def p_statement(p):
                 | sort_stmt
                 | materialize_stmt
                 | limit_stmt
+                | append_stmt
+                | aggregate_stmt
 
                 | empty
     '''
     p[0] = p[1]
+
+def p_aggregate_stmt(p):
+    '''
+    aggregate_stmt : HASH_AGG summary SUBOPS statement
+            | AGGREGATE summary SUBOPS statement
+    '''
+    aggregate_summary = p[2]
+    sub_text = p[4]['text']
+    method = ''
+    if (p[1] == 'HashAggregate'):
+        method = 'hash aggregation'
+    else:
+        method = 'aggregation'
+    p[0] = p[4]
+    p[0]['text'] = '{} Perform {} on result of the previous operation to produce the output. {}'.format(sub_text, method, aggregate_summary)
+
+def p_append_stmt(p):
+    'append_stmt : APPEND summary append_args_stmt'
+    sub_text = p[3]['text']
+    counter = p[3]['counter']
+    append_summary = p[2]
+    p[0] = {}
+    p[0]['text'] = '{} Append the output of the previous {} operations. {}'.format(sub_text, counter, append_summary)
+
+def p_append_args_stmt(p):
+    '''
+    append_args_stmt : SUBOPS scan_stmt append_args_stmt
+                | empty
+    '''
+    if (len(p) == 2):
+        p[0] = {}
+        p[0]['text'] = ''
+        p[0]['counter'] = 0
+    else:
+        sub_text = p[2]['text']
+        more_text = p[3]['text']
+        p[0] = p[3]
+        p[0]['text'] = '{} {}'.format(sub_text, more_text)
+        p[0]['counter'] += 1
 
 def p_scan_stmt(p):
     '''
@@ -457,6 +500,7 @@ def p_ops(p):
         | GT
         | LT
         | NE
+        | MATCH
     '''
     if (p[1] == '='):
         p[0] = 'equal'
@@ -468,6 +512,8 @@ def p_ops(p):
         p[0] = 'greater than'
     elif (p[1] == '<'):
         p[0] = 'less than'
+    elif (p[1] == '~~'):
+        p[0] = 'match pattern'
     else:
         p[0] = 'not equal'
 
