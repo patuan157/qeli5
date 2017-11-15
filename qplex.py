@@ -57,10 +57,12 @@ tokens = [
         'RPAREN',
         'TYPE',
         'COLON',
+        'COMMA',
         'TO',
         'IN',
 
         # OPERATORS
+        'MATCH',
         'NE',
         'GE',
         'LE',
@@ -72,7 +74,8 @@ tokens = [
         'ID',
         'COST_VAL',
         'INT',
-        'LITERALS'
+        'LITERALS',
+        'ALIAS',
 ] + list(reserved.values())
 
 t_SUBOPS    = r'->'
@@ -80,8 +83,10 @@ t_LPAREN    = r'\('
 t_RPAREN    = r'\)'
 t_TYPE      = r'\:\:'
 t_COLON     = r'\:'
+t_COMMA     = r','
 t_TO        = r'\.\.'
 t_IN        = r'\.'
+t_MATCH     = r'~~'
 t_NE        = r'<>'
 t_LE        = r'<='
 t_GE        = r'>='
@@ -89,6 +94,7 @@ t_EQ        = r'='
 t_LT        = r'<'
 t_GT        = r'>'
 t_LITERALS  = r'\'(\.|[^\'])*\''
+t_ALIAS     = r'\"(\.|[^\"])*\"'
 
 def t_ID(t):
     r'[A-z][A-z0-9_]*'
@@ -97,11 +103,8 @@ def t_ID(t):
 
 def t_COST_VAL(t):
     r'([1-9]\d*|0)\.\d{2}'
-    try:
-        t.value = float(t.value)
-    except:
-        print('Float value too large %f', t.value)
-        t.value = 0
+    comps = str(t.value).split('.')
+    t.value = '{} dot {}'.format(comps[0], comps[1])
     return t
 
 def t_INT(t):
@@ -148,7 +151,7 @@ output = []
 def p_output(p):
     'output : statement'
     output.append(p[1]['text'])
-    print('Parser outpu:\n')
+    print('Parser output:\n')
     print(p[1]['text'])
 
 def p_statement(p):
@@ -158,10 +161,97 @@ def p_statement(p):
                 | sort_stmt
                 | materialize_stmt
                 | limit_stmt
+                | append_stmt
+                | aggregate_stmt
+                | hashsetop_intersect_stmt
+                | group_stmt
+                | unique_stmt
 
                 | empty
     '''
     p[0] = p[1]
+
+def p_unique_stmt(p):
+    '''
+    unique_stmt : UNIQUE summary SUBOPS sort_stmt
+    '''
+    sub_text = p[4]['text']
+    summary = p[2]
+    p[0] = p[4]
+    p[0]['text'] = '{} Filter duplicates from the output of the previous sort operation. {}'.format(sub_text, summary)
+
+def p_group_stmt(p):
+    '''
+    group_stmt : GROUP summary SUBOPS sort_stmt
+    '''
+    sub_text = p[4]['text']
+    summary = p[2]
+    p[0] = p[4]
+    p[0]['text'] = '{} Group the output of the previous sort operation according to the sort key. {}'.format(sub_text, summary)
+
+def p_hashsetop_intersect_stmt(p):
+    '''
+    hashsetop_intersect_stmt : HASH_SET_OP INTERSECT summary SUBOPS statement
+                    | HASH_SET_OP INTERSECT ALL summary SUBOPS statement
+    '''
+    if (p[3] == 'All'):
+        summary = p[4]
+        sub_text = p[6]['text']
+        p[0] = p[6]
+        p[0]['text'] = '{} Perform intersection with duplicates using hash set operation on output of the previous operation. {}'.format(sub_text, summary)
+    else:
+        summary = p[3]
+        sub_text = p[5]['text']
+        p[0] = p[5]
+        p[0]['text'] = '{} Perform intersection without duplicates using hash set operation on output of the previous operation. {}'.format(sub_text, summary)
+
+def p_result_stmt(p):
+    '''
+    result_stmt : RESULT summary SUBOPS statement
+    '''
+    summary = p[2]
+    sub_text = p[4]['text']
+    p[0] = p[4]
+    p[0]['text'] = '{} Port the result of the previous operation.  {}'.format(sub_text, summary)
+
+def p_aggregate_stmt(p):
+    '''
+    aggregate_stmt : HASH_AGG summary SUBOPS statement
+            | AGGREGATE summary SUBOPS statement
+    '''
+    aggregate_summary = p[2]
+    sub_text = p[4]['text']
+    method = ''
+    if (p[1] == 'HashAggregate'):
+        method = 'without duplicates'
+    else:
+        method = 'with duplicates'
+    p[0] = p[4]
+    p[0]['text'] = '{} Perform aggregation {} on result of the previous operation to produce the output. {}'.format(sub_text, method, aggregate_summary)
+
+def p_append_stmt(p):
+    'append_stmt : APPEND summary append_args_stmt'
+    sub_text = p[3]['text']
+    counter = p[3]['counter']
+    append_summary = p[2]
+    p[0] = {}
+    p[0]['text'] = '{} Append the output of the previous {} operations. {}'.format(sub_text, counter, append_summary)
+
+def p_append_args_stmt(p):
+    '''
+    append_args_stmt : SUBOPS scan_stmt append_args_stmt
+                | empty
+    '''
+    if (len(p) == 2):
+        p[0] = {}
+        p[0]['text'] = ''
+        p[0]['counter'] = 0
+    else:
+        sub_text = p[2]['text']
+        more_text = p[3]['text']
+        p[0] = p[3]
+        p[0]['text'] = '{} {}'.format(sub_text, more_text)
+        p[0]['counter'] += 1
 
 def p_scan_stmt(p):
     '''
@@ -169,6 +259,8 @@ def p_scan_stmt(p):
                 | index_scan_stmt
                 | index_only_scan_stmt
                 | bmp_scan_stmt
+                | subquery_scan_stmt
+                | result_stmt
     '''
     p[0] = p[1]
 
@@ -179,6 +271,17 @@ def p_join_stmt(p):
                 | merge_join_stmt
     '''
     p[0] = p[1]
+
+def p_subquery_scan_stmt(p):
+    '''
+    subquery_scan_stmt : subquery_scan SUBOPS scan_stmt
+    '''
+    subquery_scan = p[1]
+    alias = subquery_scan['alias']
+    summary = subquery_scan['summary']
+    sub_text = p[3]['text']
+    p[0] = p[3]
+    p[0]['text'] = '{} Set the alias of the previous scan operation as {}.  Prepare the output of {} as input for use in later operation. {}'.format(sub_text, alias, alias, summary)
 
 def p_seq_scan_stmt(p):
     '''
@@ -247,7 +350,10 @@ def p_bmp_scan_stmt(p):
     p[0]['text'] = text
 
 def p_bmp_scan_stmt_tail(p):
-    'bmp_scan_stmt_tail : bmp_index_scan_stmt'
+    '''
+    bmp_scan_stmt_tail : bmp_index_scan_stmt
+                | bmp_and_stmt
+    '''
     p[0] = p[1]
 
 def p_bmp_heap_scan_stmt(p):
@@ -266,6 +372,32 @@ def p_bmp_heap_scan_stmt(p):
     p[0] = {}
     p[0]['text'] = text
     p[0]['table_name'] = table_name
+
+def p_bmp_and_stmt(p):
+    '''
+    bmp_and_stmt : BMP_AND summary bmp_and_stmt_tail
+    '''
+    sub_text = p[3]['text']
+    counter = p[3]['counter']
+    bmp_and_summary = p[2]
+    p[0] = {}
+    p[0]['text'] = '{} Perform bitmap AND on the output of the previous {} operations. {}'.format(sub_text, counter, bmp_and_summary)
+
+def p_bmp_and_stmt_tail(p):
+    '''
+    bmp_and_stmt_tail : SUBOPS bmp_index_scan_stmt bmp_and_stmt_tail
+                    | empty
+    '''
+    if (len(p) == 2):
+        p[0] = {}
+        p[0]['text'] = ''
+        p[0]['counter'] = 0
+    else:
+        sub_text = p[2]['text']
+        more_text = p[3]['text']
+        p[0] = p[3]
+        p[0]['text'] = '{} {}'.format(sub_text, more_text)
+        p[0]['counter'] += 1
 
 def p_bmp_index_scan_stmt(p):
     '''
@@ -367,6 +499,14 @@ def p_limit_stmt(p):
     p[0] = p[3]
     p[0]['text'] = '{} From the output of the previous operation, limit the number of rows returned according to the given query. {}'.format(sub_text, limit_summary)
 
+def p_subquery_scan(p):
+    'subquery_scan : SUBQUERY SCAN ON ALIAS summary'
+    alias = p[4]
+    summary = p[5]
+    p[0] = {}
+    p[0]['alias'] = alias
+    p[0]['summary'] = summary
+
 def p_seq_scan(p):
     'seq_scan : SEQUENTIAL SCAN ON table summary'
     table_name = p[4]
@@ -418,8 +558,13 @@ def p_condition(p):
             | recheck
             | merge_cond
             | hash_cond
+            | onetime_filter
     '''
     p[0] = p[1]
+
+def p_onetime_filter(p):
+    'onetime_filter : ONE_TIME FILTER COLON predicate'
+    p[0] = p[4]
 
 def p_filter(p):
     'filter : FILTER COLON predicate'
@@ -458,6 +603,7 @@ def p_ops(p):
         | GT
         | LT
         | NE
+        | MATCH
     '''
     if (p[1] == '='):
         p[0] = 'equal'
@@ -469,6 +615,8 @@ def p_ops(p):
         p[0] = 'greater than'
     elif (p[1] == '<'):
         p[0] = 'less than'
+    elif (p[1] == '~~'):
+        p[0] = 'match pattern'
     else:
         p[0] = 'not equal'
 
@@ -533,8 +681,18 @@ def p_sort(p):
     p[0] = p[2]
 
 def p_sort_key(p):
-    'sort_key : SORT KEY COLON attribute'
+    'sort_key : SORT KEY COLON attribute_list'
     p[0] = p[4]
+
+def p_attribute_list(p):
+    '''
+    attribute_list : attribute_list COMMA ID
+                    | ID
+    '''
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        p[0] = p[1] + ', ' + p[3]
 
 def p_hash_cond(p):
     'hash_cond : HASH CONDITION COLON predicate'
