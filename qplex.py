@@ -223,7 +223,7 @@ def p_index_only_scan_stmt(p):
     index_scan = p[1]
     table_name = index_scan['table_name']
     index = index_scan['index']
-    text = 'Performing index scan on table "{}" using only index "{}"'.format(table_name, index)
+    text = 'Performing index scan on table "{}" getting data only from index "{}"'.format(table_name, index)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -278,6 +278,7 @@ def p_bmp_index_scan_stmt(p):
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
+    text += '. Bitmap index scan ensures that the rows are accessed sequentially in their physical location order'
     summary = index_scan['summary']
     text += '. {}'.format(summary)
     p[0] = {}
