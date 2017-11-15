@@ -3,6 +3,7 @@ import os
 import platform
 import json
 import psycopg2 as database
+import re
 from gtts import gTTS
 from playsound import playsound
 
@@ -105,6 +106,7 @@ class CustomFrame(MainFrame):
         text_send_to_vocalizer = parse(query_plan)  # convert query plan to human-readable text
 
         # self.natLangBox.SetStyle(0, self.natLangBox.get_size(), wx.TE_MULTILINE)		# Multiple Line Style Box
+        
         self.natLangBox.SetValue(text_send_to_vocalizer)
         		  
         #if self.dataCursor is not None and not self.dataCursor.closed:
@@ -161,9 +163,21 @@ class CustomFrame(MainFrame):
     def onVocalize(self, event):
         """onVocalize function when click button. Vocalize the QUERY PLAN, show descriptive text and speak output."""
         print("Vocalize the Query")
-        tts = gTTS(text=self.natLangBox.GetValue(), lang='en')
+        text_to_read = self.converFloatToReadableText(self.natLangBox.GetValue())
+        tts = gTTS(text=text_to_read, lang='en')
         tts.save("output.mp3")
         playsound("output.mp3")
+
+    def converFloatToReadableText(self, input_text):
+        pattern = re.compile('[0-9]\d*')
+        vocalized_text = input_text
+        vocalized_text_list = list(vocalized_text)
+        for i in range(len(vocalized_text_list)):
+            if(vocalized_text_list[i] == '.' and i != len(vocalized_text_list)-1):
+                if(pattern.match(str(vocalized_text_list[i-1])) != None and pattern.match(str(vocalized_text_list[i+1])) != None):
+                    vocalized_text_list[i] = ' point '
+        vocalized_text = ''.join(vocalized_text_list)
+        return vocalized_text
 
     def onLoadMoreData(self, event):
         self.populateGrid(isAppendMode = True)

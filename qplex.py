@@ -223,7 +223,7 @@ def p_index_only_scan_stmt(p):
     index_scan = p[1]
     table_name = index_scan['table_name']
     index = index_scan['index']
-    text = 'Performing index scan on table "{}" using only index "{}"'.format(table_name, index)
+    text = 'Performing index scan on table "{}" getting data only from index "{}"'.format(table_name, index)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -278,6 +278,7 @@ def p_bmp_index_scan_stmt(p):
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
+    text += '. Bitmap index scan ensures that the rows are accessed sequentially in their physical location order'
     summary = index_scan['summary']
     text += '. {}'.format(summary)
     p[0] = {}
@@ -295,7 +296,7 @@ def p_nested_join_stmt(p):
     inner_stmt = p[5]
     inner_table_name = inner_stmt['table_name']
     inner_table_text = inner_stmt['text']
-    text = 'First, scan the outer table "{}". {} Then, scan the inner table "{}". {} Perfoming nested loop join on table "{}" and table "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, join_summary)
+    text = 'First, scan the outer table "{}". {} Then, for each row of the outer table "{}", scan the inner table "{}". {} Perfoming nested loop join on table "{}" and table "{}". {}'.format(outer_table_name, outer_table_text, outer_table_name, inner_table_name, inner_table_text, outer_table_name, inner_table_name, join_summary)
     p[0] = {}
     p[0]['text'] = text
 
@@ -438,7 +439,7 @@ def p_summary(p):
     final_cost = p[6]
     rows = p[9]
     width = p[12]
-    p[0] = '''This operation took {} miliseconds to initialize, {} miliseconds to complete, returning {} rows and {} columns.'''.format(startup_cost, final_cost, rows, width)
+    p[0] = '''This operation took {} miliseconds to initialize, {} miliseconds to complete, returning {} rows and estimated average width of row is {} bytes.'''.format(startup_cost, final_cost, rows, width)
 
 def p_predicate(p):
     '''
