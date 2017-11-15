@@ -296,7 +296,7 @@ def p_nested_join_stmt(p):
     inner_stmt = p[5]
     inner_table_name = inner_stmt['table_name']
     inner_table_text = inner_stmt['text']
-    text = 'First, scan the outer table "{}". {} Then, scan the inner table "{}". {} Perfoming nested loop join on table "{}" and table "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, join_summary)
+    text = 'First, scan the outer table "{}". {} Then, for each row of the outer table "{}", scan the inner table "{}". {} Perfoming nested loop join on table "{}" and table "{}". {}'.format(outer_table_name, outer_table_text, outer_table_name, inner_table_name, inner_table_text, outer_table_name, inner_table_name, join_summary)
     p[0] = {}
     p[0]['text'] = text
 
