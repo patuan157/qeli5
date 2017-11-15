@@ -438,7 +438,7 @@ def p_summary(p):
     final_cost = p[6]
     rows = p[9]
     width = p[12]
-    p[0] = '''This operation took {} miliseconds to initialize, {} miliseconds to complete, returning {} rows and {} columns.'''.format(startup_cost, final_cost, rows, width)
+    p[0] = '''This operation took {} miliseconds to initialize, {} miliseconds to complete, returning {} rows and estimated average width of row is {} bytes.'''.format(startup_cost, final_cost, rows, width)
 
 def p_predicate(p):
     '''
