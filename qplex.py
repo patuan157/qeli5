@@ -103,8 +103,11 @@ def t_ID(t):
 
 def t_COST_VAL(t):
     r'([1-9]\d*|0)\.\d{2}'
-    comps = str(t.value).split('.')
-    t.value = '{} dot {}'.format(comps[0], comps[1])
+    try:
+        t.value = float(t.value)
+    except:
+        print('Float value too large %f', t.value)
+        t.value = 0
     return t
 
 def t_INT(t):
