@@ -1,0 +1,6 @@
+wxPython>=4.0.0b2      # Python API for building wxWidget app
+psycopg2>=2.7.3.2      # Connector for PostgreSQL
+ply>=3.10              # Python API for parsing tools lex and yacc
+python-dotenv>=0.7.1   # Environment variable populator for .env file
+gtts>=1.2.2            # Google Text-to-Speed module
+playsound>=1.2.2       # Cross-platform sound file player

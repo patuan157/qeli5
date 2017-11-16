@@ -4,11 +4,9 @@ parser.out
 parsetab.py
 __pycache__/
 .vscode/
-requirements.txt
 env/
 .env
 .env.local
 node_modules/
-package-lock.json
 output.mp3
 test_driver.py

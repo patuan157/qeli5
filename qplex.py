@@ -154,7 +154,7 @@ output = []
 def p_output(p):
     'output : statement'
     output.append(p[1]['text'])
-    print('Parser output:\n')
+    # print('Parser output:\n')
     # print(p[1]['text'])
 
 def p_statement(p):

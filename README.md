@@ -7,24 +7,27 @@ A Python native application providing detailed descriptions in natural language 
 ## I. Setup
 ### 1. Dependencies
 #### ❏ pip (Python)
-All packages are required.
+Required packages for implemented functionalities.
+##### Listing
 ```bash
 wxPython         # Python API for building wxWidget app
 psycopg2         # Connector for PostgreSQL
 ply              # Python API for parsing tools lex and yacc
-dotenv           # Environment variable populator for .env file
+python-dotenv    # Environment variable populator for .env file
+gtts             # Google Text-to-Speed module
+playsound        # Cross-platform sound file player
 ```
-Refer to https://pip.pypa.io/en/stable/installing/ to install `pip`.
-##### Installation using `pip`
-Run one of the following command to install for all mentioned packages.
+##### Installation steps
+1. Get `pip` at https://pip.pypa.io/en/stable/installing/.
+
+2. Run one of the following command to install all mentioned packages.
 ```bash
-pip install <package-name>     # Windows
-pip3 install <package-name>    # Mac/Linux
+pip install -r requirements.txt     # Windows
+pip3 install -r requirements.txt    # Mac/Linux
 ```
-##### Installation using `virtualenv`
-*(coming soon)*
 #### ❏ npm (Node.js, JavaScript)
 Development dependencies which help speed up the development process.
+##### Listing
 ```bash
 yarn (global)    # for managing npm dependencies & starting npm scripts
 nodemon          # for hot-reloading
@@ -35,7 +38,7 @@ run-script-os    # for multiplexing platform-specific npm scripts
 
 2. Run `npm i -g yarn` to install yarn globally. (optional)
 
-3. Run `yarn` (or `npm install`, if you skipped step 2) to install packages.
+3. Run `yarn` (or `npm install`, if you skipped step 2) to install all mentioned packages.
 
 ### 2. Environment Variables
 Environment variable setup mechanism is provided by the `dotenv` package, which populates the workspace with configurations declared in `.env`.
