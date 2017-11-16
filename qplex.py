@@ -293,7 +293,7 @@ def p_seq_scan_stmt(p):
     '''
     seq_scan = p[1]
     table_name = seq_scan['table_name']
-    text = '''Performing sequential scan on table "{}"'''.format(table_name)
+    text = '''Performing sequential scan by scanning through every rows on table "{}"'''.format(table_name)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -311,7 +311,7 @@ def p_index_scan_stmt(p):
     index_scan = p[1]
     table_name = index_scan['table_name']
     index = index_scan['index']
-    text = 'Performing index scan on table "{}" using index "{}"'.format(table_name, index)
+    text = 'Performing index scan on table "{}" using B-Tree index "{}"'.format(table_name, index)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -329,7 +329,7 @@ def p_index_only_scan_stmt(p):
     index_scan = p[1]
     table_name = index_scan['table_name']
     index = index_scan['index']
-    text = 'Performing index scan on table "{}" getting data only from index "{}"'.format(table_name, index)
+    text = 'Since the query result can be obtained directly on index, there is no need to access relation. Performing index scan on table "{}" getting data only from index "{}"'.format(table_name, index)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -366,7 +366,7 @@ def p_bmp_heap_scan_stmt(p):
     '''
     heap_scan = p[1]
     table_name = heap_scan['table_name']
-    text = '''Performing bitmap heap scan on table "{}"'''.format(table_name)
+    text = '''After the Bitmap Index Scan which generated the bit map of pages sorted by the physical location of the row, we then accessing the rows in the order of their physical location. Performing bitmap heap scan on table "{}". '''.format(table_name)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
@@ -409,11 +409,10 @@ def p_bmp_index_scan_stmt(p):
     '''
     index_scan = p[1]
     table_name = index_scan['table_name']
-    text = '''Performing bitmap index scan on table "{}"'''.format(table_name)
+    text = '''The interested rows are first stored in a bitmap. After the index scan is completed, the bitmap is sorted by the physical location of a row. This creates a bitmap of the pages of the relation to track pages. Performing bitmap index scan on table "{}"'''.format(table_name)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
-    text += '. Bitmap index scan ensures that the rows are accessed sequentially in their physical location order'
     summary = index_scan['summary']
     text += '. {}'.format(summary)
     p[0] = {}
@@ -445,7 +444,7 @@ def p_hash_join_stmt(p):
     inner_stmt = p[6]
     inner_table_name = inner_stmt['table_name']
     inner_table_text = inner_stmt['text']
-    text = 'First, scan the outer table "{}". {} Then, scan the inner table "{}". {} Perfoming hash join on table "{}" and table "{}" with condition "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, condition, join_summary)
+    text = 'First, scan the first table "{}" and loaded to the hash table, using the join attribute as the hash key. {} Then, scan the second table "{}" and the appropriate values of every row found are used as hash keys to locate the matching rows in the table. {} Perfoming hash join on table "{}" and table "{}" with condition "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, condition, join_summary)
     p[0] = {}
     p[0]['text'] = text
 
@@ -472,7 +471,7 @@ def p_merge_join_stmt(p):
     inner_stmt = p[6]
     inner_table_name = inner_stmt['table_name']
     inner_table_text = inner_stmt['text']
-    text = 'First, sort the outer table "{}". {} Then, sort the inner table "{}". {} Perfoming merge join on table "{}" and table "{}" with condition "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, condition, join_summary)
+    text = 'First, sort the outer table "{}". {} Then, sort the inner table "{}". Then the two relations are scanned in parallel, and matching rows are combined to form join rows. {} Perfoming merge join on table "{}" and table "{}" with condition "{}". {}'.format(outer_table_name, outer_table_text, inner_table_name, inner_table_text, outer_table_name, inner_table_name, condition, join_summary)
     p[0] = {}
     p[0]['text'] = text
 
