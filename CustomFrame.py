@@ -96,6 +96,9 @@ class CustomFrame(MainFrame):
 
     def onSubmit(self, event):
         """onSubmit function when click button. Submit query to Database and get back the QUERY PLAN."""
+        if self.dataGrid.GetNumberRows() != 0:
+            self.dataGrid.DeleteRows(numRows = self.dataGrid.GetNumberRows())
+            self.dataGrid.DeleteCols(numCols = self.dataGrid.GetNumberCols())
         query = self.sqlBox.GetValue()				# Get The Query String submitted
 
         cur = self.connection.cursor()				# Open new cursor
