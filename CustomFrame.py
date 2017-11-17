@@ -30,6 +30,8 @@ class CustomFrame(MainFrame):
         self.loadBtn.Bind(wx.EVT_BUTTON, self.onLoad)
         self.removeBtn.Bind(wx.EVT_BUTTON, self.onRemove)
         self.submitBtn.Bind(wx.EVT_BUTTON, self.onSubmit)
+        self.sqlBox.Bind(wx.EVT_TEXT, self.onSqlChange)
+        self.natLangBox.Bind(wx.EVT_TEXT, self.onNatLangChange)
         self.vocalBtn.Bind(wx.EVT_BUTTON, self.onVocalize)
         self.loadMoreDataBtn.Bind(wx.EVT_BUTTON, self.onLoadMoreData)
         self.saveBox.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.onLoad)
@@ -94,6 +96,15 @@ class CustomFrame(MainFrame):
                 self.dataGrid.SetCellValue(i + offset, j, str(data[i][j]))
                 self.dataGrid.SetReadOnly(i + offset, j)
 
+    def onSqlChange(self, event):
+        cond = len(self.sqlBox.GetValue()) > 0
+        self.submitBtn.Enable(cond)
+        self.saveBtn.Enable(cond)
+
+    def onNatLangChange(self, event):
+        cond = len(self.natLangBox.GetValue()) > 0
+        self.vocalBtn.Enable(cond)
+
     def onSubmit(self, event):
         """onSubmit function when click button. Submit query to Database and get back the QUERY PLAN."""
         if self.dataGrid.GetNumberRows() != 0:
@@ -117,7 +128,6 @@ class CustomFrame(MainFrame):
         self.dataCursor = self.connection.cursor()
         self.dataCursor.execute(query)
         self.populateGrid()
-        self.dataCursor.close()
 
         # cur = self.connection.cursor()
         # cur.execute(query + ' LIMIT 10')
@@ -186,6 +196,7 @@ class CustomFrame(MainFrame):
         self.populateGrid(isAppendMode = True)
 
     def __del__(self):
+        self.dataCursor.close() # DO NOT move it somewhere else
         self.connection.close()			# Close connection when complete the program
         with open('query.json', 'w') as query_file:
             json.dump(self.query, query_file)

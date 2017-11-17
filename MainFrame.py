@@ -38,6 +38,8 @@ class MainFrame ( wx.Frame ):
 		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.saveBtn = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
+		self.saveBtn.Enable( False )
+		
 		bSizer14.Add( self.saveBtn, 0, wx.ALL, 5 )
 		
 		self.loadBtn = wx.Button( self, wx.ID_ANY, u"Load", wx.DefaultPosition, wx.Size( 75,-1 ), 0 )
@@ -64,12 +66,14 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer16.Add( self.m_staticText3, 0, wx.ALL, 5 )
 		
-		self.sqlBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), 0 )
+		self.sqlBox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 500,200 ), wx.TE_MULTILINE|wx.TE_RICH|wx.TE_RICH2|wx.TE_WORDWRAP )
 		self.sqlBox.SetFont( wx.Font( 9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Courier New" ) )
 		
 		bSizer16.Add( self.sqlBox, 0, wx.ALL, 5 )
 		
 		self.submitBtn = wx.Button( self, wx.ID_ANY, u"Submit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.submitBtn.Enable( False )
+		
 		bSizer16.Add( self.submitBtn, 0, wx.ALL, 5 )
 		
 		
@@ -89,6 +93,8 @@ class MainFrame ( wx.Frame ):
 		bSizer18.Add( self.natLangBox, 0, wx.ALL, 5 )
 		
 		self.vocalBtn = wx.Button( self, wx.ID_ANY, u"Vocalize", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.vocalBtn.Enable( False )
+		
 		bSizer18.Add( self.vocalBtn, 0, wx.ALL, 5 )
 		
 		
@@ -130,6 +136,8 @@ class MainFrame ( wx.Frame ):
 		bSizer12.Add( self.dataGrid, 0, wx.ALL, 5 )
 		
 		self.loadMoreDataBtn = wx.Button( self, wx.ID_ANY, u"Load More", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.loadMoreDataBtn.Enable( False )
+		
 		bSizer12.Add( self.loadMoreDataBtn, 0, wx.ALL, 5 )
 		
 		
