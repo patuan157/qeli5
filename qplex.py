@@ -329,7 +329,7 @@ def p_index_only_scan_stmt(p):
     index_scan = p[1]
     table_name = index_scan['table_name']
     index = index_scan['index']
-    text = 'Since the query result can be obtained directly on index, there is no need to access relation. Performing index scan on table "{}" getting data only from index "{}"'.format(table_name, index)
+    text = 'Performing index scan on table "{}" getting data only from index "{}". Since the query result can be obtained directly on index, there is no need to access relation'.format(table_name, index)
     if (len(p) == 3):
         condition = p[2]
         text += ' with condition {}'.format(condition)
